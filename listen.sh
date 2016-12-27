@@ -1,4 +1,5 @@
 #!/bin/bash
+
 pipe="pifone.mp3"
 
 if [[ ! -p $pipe ]]; then

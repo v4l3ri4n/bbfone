@@ -9,7 +9,6 @@ GPIO.setmode(GPIO.BOARD)
 pin = 7
 GPIO.setup(pin, GPIO.IN)
 
-
 # multicast setup
 MULTICAST_ADDR = '224.0.0.1'
 PORT = 3000
@@ -18,17 +17,13 @@ ttl = struct.pack('b', 1)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
 
+DEVICE = "plughw:1,0"
+PORT = "5000"
 
-#DEVICE = "plughw:1,0"
-#PORT = "5000"
-
-#while 1:
-#	print(GPIO.input(pin))
-#	if GPIO.input(pin)==GPIO.LOW:
-#		print("sound detected")
-#		sock.sendto("robot", (MCAST_GRP, MCAST_PORT))
-#		time.sleep(1)
-	#call("arecord -f cd -D "+DEVICE+" | netcat -v -l -p "+PORT, shell=True)
+# send sound over network
+def diffuse_sound():
+    while 1:
+        call("arecord -f cd -D "+DEVICE+" | netcat -v -l -p "+PORT, shell=True)
 
 def send_message():
 	sock.sendto("sound_detected", (MULTICAST_ADDR, PORT))
@@ -42,4 +37,4 @@ def check_noise():
 	check_noise()
 	
 check_noise()
-
+diffuse_sound()
