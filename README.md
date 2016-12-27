@@ -2,6 +2,8 @@
 
 Install python raspberry dependencies:
 --------------------------------------
+apt-get install python
+apt-get install git
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
 pip install RPi.GPIO

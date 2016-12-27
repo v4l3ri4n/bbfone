@@ -11,22 +11,22 @@ GPIO.setup(pin, GPIO.IN)
 
 # multicast setup
 MULTICAST_ADDR = '224.0.0.1'
-PORT = 3000
+MULTICAST_PORT = 3000
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 ttl = struct.pack('b', 1)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
 
 DEVICE = "plughw:1,0"
-PORT = "5000"
+NETCATPORT = "5000"
 
 # send sound over network
 def diffuse_sound():
     while 1:
-        call("arecord -f cd -D "+DEVICE+" | netcat -v -l -p "+PORT, shell=True)
+        call("arecord -f cd -D "+DEVICE+" | netcat -v -l -p "+NETCATPORT, shell=True)
 
 def send_message():
-	sock.sendto("sound_detected", (MULTICAST_ADDR, PORT))
+	sock.sendto("sound_detected", (MULTICAST_ADDR, MULTICAST_PORT))
 
 def check_noise():
 	while GPIO.input(pin) == GPIO.HIGH:
