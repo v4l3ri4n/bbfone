@@ -17,7 +17,7 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('', MULTICAST_PORT))
 
 # create FIFO for netcat
-if stat.S_ISFIFO(os.stat(path).st_mode):
+if stat.S_ISFIFO(os.stat(PIPE).st_mode):
     os.mkfifo(PIPE)
 
 def listen_message():
