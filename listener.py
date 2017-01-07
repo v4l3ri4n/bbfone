@@ -16,7 +16,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 ttl = struct.pack('b', 1)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
-
+# mic setup
 DEVICE = "plughw:1,0"
 NETCATPORT = "5000"
 

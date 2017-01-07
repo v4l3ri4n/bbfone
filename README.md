@@ -10,5 +10,5 @@ pip install RPi.GPIO
 
 Usage:
 ------
-On listener pi, launch listener.py and diffuse.sh
-On recevier, launch receiver.py and listen.sh
+On listener, launch listener.py and diffuse.sh
+On receiver, launch receiver.py and listen.sh
