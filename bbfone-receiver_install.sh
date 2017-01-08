@@ -171,7 +171,7 @@ execute_command "chmod +x /usr/local/bin/bbfone-receiver.py" true "Making bbfone
 #*--------------------------------------------------------------------------------------------
 
 display_message "Ending startup script"
-cat > /etc/init.d/bbfone << EOT
+cat >> /etc/init.d/bbfone << EOT
 # Le switch case ci-dessous permet de savoir si le système souhaite lancer ou arrêter le script 
 # on le lance au démarrage et l'arrête à la fermeture du système
 case "\$1" in
@@ -205,5 +205,5 @@ execute_command "update-rc.d bbfone defaults" true "Linking bbfone startup scrip
 display_message ""
 display_message ""
 display_message "Congratulation ! You now have your bbfone ready !"
-display_message ""
+display_message "Reboot now :-)"
 

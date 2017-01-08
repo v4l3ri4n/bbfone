@@ -136,6 +136,10 @@ display_message "Update hostname file"
 echo "$HOSTNAME" > /etc/hostname
 check_returned_code $?
 
+display_message "Update hosts file"
+echo "127.0.1.1 $HOSTNAME" >> /etc/hosts
+check_returned_code $?
+
 display_message "Update interface configuration"
 cat > /etc/network/interfaces << EOT
 # Include files from /etc/network/interfaces.d:
@@ -162,10 +166,12 @@ execute_command "apt-get install -y build-essential libpcre3 libpcre3-dev libssl
 
 execute_command "wget -O /usr/src/nginx-1.10.2.tar.gz http://nginx.org/download/nginx-1.10.2.tar.gz" true "Downloading nginx sources"
 execute_command "wget -O /usr/src/master.zip https://github.com/arut/nginx-rtmp-module/archive/master.zip" true "Downloading nginx rtmp module sources"
-execute_command "tar -zxvf /usr/src/nginx-1.10.2.tar.gz" true "Unarchiving nginx sources"
-execute_command "unzip /usr/src/master.zip" true "Unarchiving nginx rtmp module sources"
+execute_command "tar -zxvf /usr/src/nginx-1.10.2.tar.gz -C /usr/src" true "Unarchiving nginx sources"
+execute_command "unzip /usr/src/master.zip -d /usr/src" true "Unarchiving nginx rtmp module sources"
 execute_command "cd /usr/src/nginx-1.10.2 && ./configure --add-module=../nginx-rtmp-module-master" true "Configuring nginx for compiling"
 execute_command "make && checkinstall -y && cd $SCRIPTPATH" true "Make install"
+execute_command "mkdir /usr/local/nginx/logs" true "Make logs dir"
+
 execute_command "wget https://raw.github.com/JasonGiedymin/nginx-init-ubuntu/master/nginx -O /etc/init.d/nginx" true "Creating nginx init script"
 execute_command "chmod +x /etc/init.d/nginx" true "Making nginx init script executable"
 execute_command "update-rc.d nginx defaults" true "Registering nginx service"
@@ -180,7 +186,7 @@ execute_command "python ~/get-pip.py" true "Installing get-pip"
 execute_command "pip install RPi.GPIO" true "Installing RPi.GPIO"
 
 display_message "Configuring nginx rtmp"
-cat > /usr/local/nginx/conf/nginx.conf << EOT
+cat >> /usr/local/nginx/conf/nginx.conf << EOT
 rtmp {
    server {
        listen 1935;
@@ -205,7 +211,7 @@ execute_command "chmod +x /usr/local/bin/bbfone-diffuser.py" true "Making bbfone
 #*--------------------------------------------------------------------------------------------
 
 display_message "Ending startup script"
-cat > /etc/init.d/bbfone << EOT
+cat >> /etc/init.d/bbfone << EOT
 # Le switch case ci-dessous permet de savoir si le système souhaite lancer ou arrêter le script 
 # on le lance au démarrage et l'arrête à la fermeture du système
 case "\$1" in
@@ -239,5 +245,5 @@ execute_command "update-rc.d bbfone defaults" true "Linking bbfone startup scrip
 display_message ""
 display_message ""
 display_message "Congratulation ! You now have your bbfone ready !"
-display_message ""
+display_message "Reboot now :-)"
 
