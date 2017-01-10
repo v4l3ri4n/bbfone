@@ -1,41 +1,64 @@
 # bbfone
 
-Install :
----------
+Install on baby's pi:
+---------------------
 
-1. Install git
+- Install git
 
 ```
 sudo apt-get install git
 ```
 
-2. Clone this repo
+- Clone this repo
 
 ```
 git clone https://github.com/v4l3ri4n/bbfone ~/bbfone
 ```
     
-3. Make install scripts executable
+- Make install script executable
 
 ```
 sudo chmod +x ~/bbfone/bbfone-diffuser_install.sh
-sudo chmod +x ~/bbfone/bbfone-receiver_install.sh
 ```
 
-4. Customize variables in the install scripts
+- Customize variables in the install scripts
 
-5. Configure baby's room pi ip in bbfone-recevier.sh
-
-6. On baby's room pi, execute bbfone-diffuser_install.sh
+- Execute bbfone-diffuser_install.sh
 
 ```
 sudo ~/bbfone/bbfone-diffuser_install.sh
+
+- Reboot
+
+Install on daddy's pi:
+----------------------
+
+- Install git
+
+```
+sudo apt-get install git
 ```
 
-7. On parent's room pi, execute bbfone-receiver.sh
+- Clone this repo
+
+```
+git clone https://github.com/v4l3ri4n/bbfone ~/bbfone
+```
+    
+- Make install script executable
+
+```
+sudo chmod +x ~/bbfone/bbfone-receiver_install.sh
+```
+
+- Customize variables in the install scripts
+
+- Configure baby's room pi IP in bbfone-recevier.sh
+
+- On parent's room pi, execute bbfone-receiver.sh
 
 ```
 sudo ~/bbfone/bbfone-receiver_install.sh
 ```
 
-8. Reboot
+- Reboot

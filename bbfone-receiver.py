@@ -2,6 +2,9 @@ import socket
 import struct
 import stat, os
 from subprocess import call
+import alsaaudio
+import threading
+from functools import wraps
 
 # create socket for message
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -11,12 +14,37 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('', MULTICAST_PORT))
 
+# First find a mixer. Use the first one.
+try :
+    mixer = alsaaudio.Mixer('Master', 0)
+except alsaaudio.ALSAAudioError :
+    sys.stderr.write("No such mixer\n")
+    sys.exit(1)
+
+# Decorator delaying the execution of a function for a while.
+def delay(delay=0.):
+    def wrap(f):
+        @wraps(f)
+        def delayed(*args, **kwargs):
+            timer = threading.Timer(delay, f, args=args, kwargs=kwargs)
+            timer.start()
+        return delayed
+    return wrap
+
+#  socket listener
 def listen_message():
     while 1:
         print 'waiting to receive message'
         message, address = sock.recvfrom(255)
         print 'received %s bytes from %s' % (len(message), address)
         print message
-        call("amixer sset Master toggle", shell=True)
+        vol = m.getvolume()[0]
+        if vol <= 0:
+            m.setvolume(99) # set volume up
+            lower_volume() # set volume down after 300 seconds (5 mins)
 
+@delay(300.0)
+def lower_volume():
+    m.setvolume(0)
+    
 listen_message()

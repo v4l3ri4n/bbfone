@@ -158,7 +158,7 @@ execute_command "ifup $WAN_INTERFACE" true "Activating the WAN interface"
 #* bbfone part install
 #*--------------------------------------------------------------------------------------------
 
-execute_command "apt-get install -y python" true "Installing python"
+execute_command "apt-get install -y python python-alsaaudio" true "Installing python"
 execute_command "apt-get install -y libav-tools" true "Installing libav-tools"
 
 execute_command "cp bbfone-receiver.sh /usr/local/bin/bbfone-receiver.sh" true "Copying bbfone shell script to /usr/local/bin"
