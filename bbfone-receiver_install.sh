@@ -25,6 +25,8 @@ KBLANG="fr"
 CONTROL_ROOT="/var/www/control"
 # Bbfone variables
 BBFONE_PORT=4000
+# Install PhatDAC
+INSTALL_PHATDAC=1
 
 
 # ********************************************************************************************
@@ -129,6 +131,11 @@ check_returned_code $?
 # Change keyboard to Azerty
 execute_command "sed -i '/XKBLAYOUT=\"gb\"/c\XKBLAYOUT=\"$KBLANG\"' /etc/default/keyboard" true "Changing keyboard config"
 execute_command "systemctl restart keyboard-setup" true "Reload keyboard service"
+
+# Install PhatDAC
+if [ $INSTALL_PHATDAC -eq 1 ]; then
+    execute_command "curl -sS get.pimoroni.com/phatdac | bash" true "Installing phatdac"
+fi
 
 #*
 #* Network configuration
