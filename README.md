@@ -63,3 +63,10 @@ sudo ~/bbfone/bbfone-receiver_install.sh
 ```
 
 - Reboot
+
+Usefull links:
+--------------
+
+https://jerous.org/2014/05/06/network-sound
+http://blog.nicolargo.com/gstreamer
+https://delog.wordpress.com/2011/05/11/audio-streaming-over-rtp-using-the-rtpbin-plugin-of-gstreamer/
