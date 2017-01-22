@@ -1,5 +1,7 @@
 # bbfone
 
+First version based on RMTP streaming, this fail because avplay could not be launch in a headless server.
+
 Install on baby's pi:
 ---------------------
 
