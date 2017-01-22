@@ -1,6 +1,6 @@
 # bbfone
 
-First version based on RMTP streaming, this fail because avplay could not be launch in a headless server.
+Second version based on UDP streaming with gstreamer
 
 Install on baby's pi:
 ---------------------
@@ -29,6 +29,7 @@ sudo chmod +x ~/bbfone/bbfone-diffuser_install.sh
 
 ```
 sudo ~/bbfone/bbfone-diffuser_install.sh
+```
 
 - Reboot
 
@@ -55,9 +56,7 @@ sudo chmod +x ~/bbfone/bbfone-receiver_install.sh
 
 - Customize variables in the install scripts
 
-- Configure baby's room pi IP in bbfone-recevier.sh
-
-- On parent's room pi, execute bbfone-receiver.sh
+- Execute bbfone-receiver_install.sh
 
 ```
 sudo ~/bbfone/bbfone-receiver_install.sh
