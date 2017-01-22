@@ -1,28 +1,31 @@
 #!/bin/bash
 
+# Tested on Raspbian Jessie Lite 2016-11-25
+
 # ********************************************************************************************
 #
-# Configuration du script
-# EDITER LES LIGNES CI-DESSOUS POUR CHANGER LA CONFIGURATION
+# Script configuration
+# EDIT LINES BELOW TO CHANGE THE CONFIG BEFORE INSTALL
 #
 # ********************************************************************************************
 
-# Nom du fichier de log
+# Install log filename
 LOGNAME="bbfone.log"
-# Répertoire de stockage du fichier de log
-# Penser à ajouter un / à la fin du chemin
+# Log storage directory (with trailing slash)
 LOGPATH="/var/log/"
-HOSTNAME="parents.pi"
+HOSTNAME="daddy"
 # Utilisateur
 USERNAME="bbfone"
 USERPASS="bbfone"
-# WAN (Wide Area Network) interface (accès internet)
+# WAN (Wide Area Network) interface
 WAN_INTERFACE="eth0"
+# Keyboard language
+KBLANG="fr"
 
 
 # ********************************************************************************************
 #
-# Fonction d'aide du script
+# Helpers
 #
 # ********************************************************************************************
 
@@ -36,7 +39,7 @@ check_returned_code() {
     RETURNED_CODE=$@
     if [ $RETURNED_CODE -ne 0 ]; then
         display_message ""
-        display_message "Erreur avec la dernière commande, vérifier le fichier de log"
+        display_message "Error with latest command, please check log file"
         display_message ""
         exit 1
     fi
@@ -75,7 +78,7 @@ prepare_logfile() {
 
 # ********************************************************************************************
 #
-# Lancement du script
+# Install start
 #
 # ********************************************************************************************
 
@@ -120,7 +123,7 @@ echo -e "#!/bin/sh
 check_returned_code $?
 
 # Change keyboard to Azerty
-execute_command "sed -i '/XKBLAYOUT=\"gb\"/c\XKBLAYOUT=\"fr\"' /etc/default/keyboard" true "Changing keyboard config"
+execute_command "sed -i '/XKBLAYOUT=\"gb\"/c\XKBLAYOUT=\"$KBLANG\"' /etc/default/keyboard" true "Changing keyboard config"
 execute_command "systemctl restart keyboard-setup" true "Reload keyboard service"
 
 #*
@@ -134,6 +137,10 @@ check_returned_code $?
 
 display_message "Update hostname file"
 echo "$HOSTNAME" > /etc/hostname
+check_returned_code $?
+
+display_message "Update hosts file"
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
 check_returned_code $?
 
 display_message "Update interface configuration"
@@ -159,7 +166,6 @@ execute_command "ifup $WAN_INTERFACE" true "Activating the WAN interface"
 #*--------------------------------------------------------------------------------------------
 
 execute_command "apt-get install -y python python-alsaaudio" true "Installing python"
-execute_command "apt-get install -y libav-tools" true "Installing libav-tools"
 
 execute_command "cp bbfone-receiver.sh /usr/local/bin/bbfone-receiver.sh" true "Copying bbfone shell script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-receiver.sh" true "Making bbfone shell script executable"
@@ -172,8 +178,6 @@ execute_command "chmod +x /usr/local/bin/bbfone-receiver.py" true "Making bbfone
 
 display_message "Ending startup script"
 cat >> /etc/init.d/bbfone << EOT
-# Le switch case ci-dessous permet de savoir si le système souhaite lancer ou arrêter le script 
-# on le lance au démarrage et l'arrête à la fermeture du système
 case "\$1" in
     start)
         # startup action
@@ -185,7 +189,7 @@ case "\$1" in
     ;;
 
     *)
-        # On indique ici comment utiliser le script, c'est dans le cas où le script est appelé sans argument ou avec un argument invalide
+        # Help on how to use script if no arg given
         echo 'Usage: /etc/init.d/bbfone {start|stop}'
         exit 1
     ;;

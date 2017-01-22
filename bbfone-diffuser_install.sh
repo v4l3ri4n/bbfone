@@ -1,28 +1,31 @@
 #!/bin/bash
 
+# Tested on Raspbian Jessie Lite 2016-11-25
+
 # ********************************************************************************************
 #
-# Configuration du script
-# EDITER LES LIGNES CI-DESSOUS POUR CHANGER LA CONFIGURATION
+# Script configuration
+# EDIT LINES BELOW TO CHANGE THE CONFIG BEFORE INSTALL
 #
 # ********************************************************************************************
 
-# Nom du fichier de log
+# Install log filename
 LOGNAME="bbfone.log"
-# Répertoire de stockage du fichier de log
-# Penser à ajouter un / à la fin du chemin
+# Log storage directory (with trailing slash)
 LOGPATH="/var/log/"
-HOSTNAME="arthur.pi"
+HOSTNAME="baby"
 # Utilisateur
 USERNAME="bbfone"
 USERPASS="bbfone"
-# WAN (Wide Area Network) interface (accès internet)
+# WAN (Wide Area Network) interface
 WAN_INTERFACE="eth0"
+# Keyboard language
+KBLANG="fr"
 
 
 # ********************************************************************************************
 #
-# Fonction d'aide du script
+# Helpers
 #
 # ********************************************************************************************
 
@@ -36,7 +39,7 @@ check_returned_code() {
     RETURNED_CODE=$@
     if [ $RETURNED_CODE -ne 0 ]; then
         display_message ""
-        display_message "Erreur avec la dernière commande, vérifier le fichier de log"
+        display_message "Error with latest command, please check log file"
         display_message ""
         exit 1
     fi
@@ -75,7 +78,7 @@ prepare_logfile() {
 
 # ********************************************************************************************
 #
-# Lancement du script
+# Install start
 #
 # ********************************************************************************************
 
@@ -120,7 +123,7 @@ echo -e "#!/bin/sh
 check_returned_code $?
 
 # Change keyboard to Azerty
-execute_command "sed -i '/XKBLAYOUT=\"gb\"/c\XKBLAYOUT=\"fr\"' /etc/default/keyboard" true "Changing keyboard config"
+execute_command "sed -i '/XKBLAYOUT=\"gb\"/c\XKBLAYOUT=\"$KBLANG\"' /etc/default/keyboard" true "Changing keyboard config"
 execute_command "systemctl restart keyboard-setup" true "Reload keyboard service"
 
 #*
@@ -137,7 +140,7 @@ echo "$HOSTNAME" > /etc/hostname
 check_returned_code $?
 
 display_message "Update hosts file"
-echo "127.0.1.1 $HOSTNAME" >> /etc/hosts
+echo "127.0.0.1 $HOSTNAME" >> /etc/hosts
 check_returned_code $?
 
 display_message "Update interface configuration"
@@ -162,19 +165,7 @@ execute_command "ifup $WAN_INTERFACE" true "Activating the WAN interface"
 #* Webserver install
 #*--------------------------------------------------------------------------------------------
 
-execute_command "apt-get install -y build-essential libpcre3 libpcre3-dev libssl-dev checkinstall unzip" true "Installing build tools"
-
-execute_command "wget -O /usr/src/nginx-1.10.2.tar.gz http://nginx.org/download/nginx-1.10.2.tar.gz" true "Downloading nginx sources"
-execute_command "wget -O /usr/src/master.zip https://github.com/arut/nginx-rtmp-module/archive/master.zip" true "Downloading nginx rtmp module sources"
-execute_command "tar -zxvf /usr/src/nginx-1.10.2.tar.gz -C /usr/src" true "Unarchiving nginx sources"
-execute_command "unzip /usr/src/master.zip -d /usr/src" true "Unarchiving nginx rtmp module sources"
-execute_command "cd /usr/src/nginx-1.10.2 && ./configure --add-module=../nginx-rtmp-module-master" true "Configuring nginx for compiling"
-execute_command "make && checkinstall -y && cd $SCRIPTPATH" true "Make install"
-execute_command "mkdir /usr/local/nginx/logs" true "Make logs dir"
-
-execute_command "wget https://raw.github.com/JasonGiedymin/nginx-init-ubuntu/master/nginx -O /etc/init.d/nginx" true "Creating nginx init script"
-execute_command "chmod +x /etc/init.d/nginx" true "Making nginx init script executable"
-execute_command "update-rc.d nginx defaults" true "Registering nginx service"
+execute_command "apt-get install -y nginx php" true "Installing build tools"
 
 #*
 #* bbfone part install
@@ -184,22 +175,6 @@ execute_command "apt-get install -y python git" true "Installing python and git"
 execute_command "wget -O ~/get-pip.py https://bootstrap.pypa.io/get-pip.py" true "Downloading get-pip"
 execute_command "python ~/get-pip.py" true "Installing get-pip"
 execute_command "pip install RPi.GPIO" true "Installing RPi.GPIO"
-
-display_message "Configuring nginx rtmp"
-cat >> /usr/local/nginx/conf/nginx.conf << EOT
-rtmp {
-   server {
-       listen 1935;
-       application live {
-           live on;
-           meta copy;
-       }
-   }
-}
-EOT
-check_returned_code $?
-
-execute_command "apt-get install -y libav-tools" true "Installing libav-tools"
 
 execute_command "cp bbfone-diffuser.sh /usr/local/bin/bbfone-diffuser.sh" true "Copying bbfone shell script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-diffuser.sh" true "Making bbfone shell script executable"
@@ -212,8 +187,6 @@ execute_command "chmod +x /usr/local/bin/bbfone-diffuser.py" true "Making bbfone
 
 display_message "Ending startup script"
 cat >> /etc/init.d/bbfone << EOT
-# Le switch case ci-dessous permet de savoir si le système souhaite lancer ou arrêter le script 
-# on le lance au démarrage et l'arrête à la fermeture du système
 case "\$1" in
     start)
         # startup action
@@ -225,7 +198,7 @@ case "\$1" in
     ;;
 
     *)
-        # On indique ici comment utiliser le script, c'est dans le cas où le script est appelé sans argument ou avec un argument invalide
+        # Help on how to use script if no arg given
         echo 'Usage: /etc/init.d/bbfone {start|stop}'
         exit 1
     ;;

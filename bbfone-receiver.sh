@@ -1,13 +1,11 @@
 #!/bin/bash
 
-LISTENER_IP="192.168.0.47"
-STREAM_NAME="bbfone"
+PORT=4000
 
 # set volum to 0, the volume is increased with python script
-amixer sset Master 0%
+#amixer sset Master 0%
 
-# play stream in background
-avplay -fflags nobuffer "rtmp://$LISTENER_IP/live/$STREAM_NAME" &
+gst-launch -v udpsrc port=$PORT ! audio/x-opus, multistream=false ! opusdec ! audioconvert ! autoaudiosink &
 
 # launch python script (listening to socket)
-python /usr/local/bin/bbfone-receiver.py
+#python /usr/local/bin/bbfone-receiver.py
