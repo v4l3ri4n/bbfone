@@ -21,6 +21,8 @@ USERPASS="bbfone"
 WAN_INTERFACE="eth0"
 # Keyboard language
 KBLANG="fr"
+# Control app
+CONTROL_ROOT="/var/www/control"
 
 
 # ********************************************************************************************
@@ -165,11 +167,41 @@ execute_command "ifup $WAN_INTERFACE" true "Activating the WAN interface"
 #* Webserver install
 #*--------------------------------------------------------------------------------------------
 
-execute_command "apt-get install -y nginx php" true "Installing build tools"
+execute_command "apt-get install -y nginx php5-fpm" true "Installing nginx and php"
+
+display_message "Configuring nginx default site"
+cat > /etc/nginx/sites-enabled/default << EOT
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root $CONTROL_ROOT;
+    index index.php index.html index.htm index.nginx-debian.html;
+    server_name _;
+    
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    location ~ [^/]\.php(/|$) {
+        fastcgi_split_path_info ^(.+\.php)(/.+)\$;
+        fastcgi_pass localhost:9000;
+        fastcgi_index index.php;
+        charset utf8;
+        include fastcgi_params;
+        fastcgi_param PATH_INFO \$fastcgi_path_info;
+        fastcgi_param SCRIPT_FILENAME \$request_filename;
+    }
+}
+EOT
+check_returned_code $?
 
 #*
 #* bbfone part install
 #*--------------------------------------------------------------------------------------------
+
+execute_command "apt-get install -y alsa-tools alsa-utils" true "Installing alsa tools"
+execute_command "apt-get install -y gstreamer-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-alsa" true "Installing gstreamer"
 
 execute_command "apt-get install -y python git" true "Installing python and git"
 execute_command "wget -O ~/get-pip.py https://bootstrap.pypa.io/get-pip.py" true "Downloading get-pip"
@@ -180,6 +212,41 @@ execute_command "cp bbfone-diffuser.sh /usr/local/bin/bbfone-diffuser.sh" true "
 execute_command "chmod +x /usr/local/bin/bbfone-diffuser.sh" true "Making bbfone shell script executable"
 execute_command "cp bbfone-diffuser.py /usr/local/bin/bbfone-diffuser.py" true "Copying bbfone python script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-diffuser.py" true "Making bbfone python script executable"
+
+# TODO : customize bbfone-diffuser based on variables of this scrip (PORT and RECEIVERIP)
+
+#*
+#* Control page install
+#*--------------------------------------------------------------------------------------------
+
+execute_command "apt-get install incron -y --force-yes" true "Adding incron package"
+
+display_message "Allow incron for root"
+echo "root" > /etc/incron.allow
+check_returned_code $?
+
+execute_command "cp -R $SCRIPTPATH/control-app $CONTROL_ROOT" true "Copying control page files"
+execute_command "chown -Rf www-data:www-data $CONTROL_ROOT" true "Changing owner of control page directory"
+
+display_message "Creating incrontab for control page"
+echo "$CONTROL_ROOT/shutdown IN_CLOSE_WRITE /usr/local/bin/bbfone-shutdown.sh" > /etc/incron.d/bbfone
+echo "$CONTROL_ROOT/reboot IN_CLOSE_WRITE /usr/local/bin/bbfone-reboot.sh" >> /etc/incron.d/bbfone
+check_returned_code $?
+
+display_message "Creating script for shutdown listening"
+cat > /usr/local/bin/bbfone-shutdown.sh << EOT
+#!/bin/sh
+halt
+EOT
+
+display_message "Creating script for reboot listening"
+cat > /usr/local/bin/bbfone-reboot.sh << EOT
+#!/bin/sh
+reboot
+EOT
+
+execute_command "chmod +x /usr/local/bin/bbfone-shutdown.sh" true "Making bbfone shutdown shell script executable"
+execute_command "chmod +x /usr/local/bin/bbfone-reboot.sh" true "Making bbfone reboot shell script executable"
 
 #*
 #* Finishing startup script
