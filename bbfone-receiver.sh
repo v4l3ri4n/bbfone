@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=4000
+PORT=BBFONE_PORT
 
 # set volume to 0, the volume is increased with python script
 #amixer sset Master 0%

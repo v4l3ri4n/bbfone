@@ -23,6 +23,8 @@ WAN_INTERFACE="eth0"
 KBLANG="fr"
 # Control app
 CONTROL_ROOT="/var/www/control"
+# Bbfone variables
+BBFONE_PORT=4000
 
 
 # ********************************************************************************************
@@ -206,11 +208,11 @@ execute_command "apt-get install -y gstreamer-tools gstreamer1.0-plugins-base gs
 execute_command "apt-get install -y python python-alsaaudio" true "Installing python"
 
 execute_command "cp bbfone-receiver.sh /usr/local/bin/bbfone-receiver.sh" true "Copying bbfone shell script to /usr/local/bin"
+execute_command "sed -i 's/BBFONE_PORT/$BBFONE_PORT/' /usr/local/bin/bbfone-receiver.sh" true "Updating bbfone shell script : udp port"
 execute_command "chmod +x /usr/local/bin/bbfone-receiver.sh" true "Making bbfone shell script executable"
+
 execute_command "cp bbfone-receiver.py /usr/local/bin/bbfone-receiver.py" true "Copying bbfone python script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-receiver.py" true "Making bbfone python script executable"
-
-# TODO : customize bbfone-diffuser based on variables of this scrip (PORT)
 
 #*
 #* Control page install
