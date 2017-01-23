@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Tested on Raspbian Jessie Lite 2016-11-25
+# Tested on Raspbian Jessie Lite 2017-01-11
 
 # ********************************************************************************************
 #
@@ -25,7 +26,7 @@ KBLANG="fr"
 CONTROL_ROOT="/var/www/control"
 # Bbfone variables
 BBFONE_PORT=4000
-BBFONE_RECEIVER="parents.local"
+BBFONE_RECEIVER="daddy.local"
 
 
 # ********************************************************************************************
@@ -188,7 +189,7 @@ server {
 
     location ~ [^/]\.php(/|$) {
         fastcgi_split_path_info ^(.+\.php)(/.+)\$;
-        fastcgi_pass localhost:9000;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
         fastcgi_index index.php;
         charset utf8;
         include fastcgi_params;
@@ -199,12 +200,14 @@ server {
 EOT
 check_returned_code $?
 
+execute_command "systemctl restart nginx" true "Restart nginx service"
+
 #*
 #* bbfone part install
 #*--------------------------------------------------------------------------------------------
 
 execute_command "apt-get install -y alsa-tools alsa-utils" true "Installing alsa tools"
-execute_command "apt-get install -y gstreamer-tools gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-alsa" true "Installing gstreamer"
+execute_command "apt-get install -y gstreamer-tools gstreamer0.10-plugins-base gstreamer0.10-plugins-good gstreamer0.10-plugins-bad gstreamer0.10-plugins-ugly gstreamer0.10-alsa" true "Installing gstreamer"
 
 execute_command "apt-get install -y python git" true "Installing python and git"
 execute_command "wget -O ~/get-pip.py https://bootstrap.pypa.io/get-pip.py" true "Downloading get-pip"

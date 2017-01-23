@@ -71,12 +71,12 @@ else {
     $( document ).ready(function() {
         $('#shutdown').on('click', function () {
             $.ajax({
-                url: "/control/index.php?action=shutdown",
+                url: "/index.php?action=shutdown",
             });
         });
         $('#reboot').on('click', function () {
             $.ajax({
-                url: "/control/index.php?action=reboot",
+                url: "/index.php?action=reboot",
             });
         });
     });
