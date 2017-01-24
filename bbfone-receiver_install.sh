@@ -224,6 +224,33 @@ execute_command "chmod +x /usr/local/bin/bbfone-receiver.sh" true "Making bbfone
 execute_command "cp $SCRIPTPATH/bbfone-receiver.py /usr/local/bin/bbfone-receiver.py" true "Copying bbfone python script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-receiver.py" true "Making bbfone python script executable"
 
+display_message "Adding sound control with softvol alsa plugin"
+cat > /etc/asound.conf << EOT
+pcm.!default {
+    type plug
+    slave.pcm "softvol"
+}
+ctl.!default {
+    type hw
+    card 0
+}
+pcm.softvol {
+    type softvol
+    slave.pcm "sysdefault"
+    control.name "Softmaster"
+    control.card 0
+}
+EOT
+check_returned_code $?
+
+execute_command "speaker-test -Dsoftvol -c2 -twav -l2" true "Testing sound control to store it"
+
+# TO REMOVE ASOUND CONF :
+#rm /var/lib/alsa/asound.state # remove the state file
+#chmod -x /usr/sbin/alsactl # make alsactl non-executable to prevent settings being written on shutdown
+#<REBOOT>
+#chmod +x /usr/sbin/alsactl
+
 #*
 #* Control page install
 #*--------------------------------------------------------------------------------------------

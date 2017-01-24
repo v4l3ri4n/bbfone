@@ -13,6 +13,9 @@ if (isset($_REQUEST['action'])) {
     }
 }
 else {
+
+    $service = exec('systemctl status bbfone | grep running');
+    $status = !empty($service) ? 'running' : 'not running';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,6 +41,12 @@ else {
         
         <div class="row">
             <div class="col-xs-12">
+
+                <div class="jumbotron">
+                    <h2><?php echo gethostname(); ?></h2>
+                    <h4><?php echo $_SERVER['SERVER_ADDR']; ?></h4>
+                    <strong>Service status : <?php echo $status; ?></strong>
+                </div>
 
                 <button type="button" class="btn btn-danger btn-lg btn-block" autocomplete="off" data-toggle="collapse" data-target="#shutdown-info" id="shutdown">
                      <i class="fa fa-stop-circle-o" aria-hidden="true"></i> Shutdown

@@ -8,4 +8,4 @@ RECEIVER="BBFONE_RECEIVER"
 gst-launch -v gstrtpbin alsasrc device="$DEVICE" ! opusenc audio=false ! udpsink port=$PORT host="$RECEIVER" &
 
 # launch python script (detecting noise)
-#python /usr/local/bin/bbfone-diffuser.py
+python /usr/local/bin/bbfone-diffuser.py

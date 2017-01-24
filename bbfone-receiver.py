@@ -7,6 +7,8 @@ import threading
 from functools import wraps
 
 # create socket for message
+MULTICAST_ADDR = '224.0.0.1'
+MULTICAST_PORT = 3000
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 membership = socket.inet_aton(MULTICAST_ADDR)
 mreq = struct.pack('4sL', membership, socket.INADDR_ANY)
@@ -16,7 +18,7 @@ sock.bind(('', MULTICAST_PORT))
 
 # First find a mixer. Use the first one.
 try :
-    mixer = alsaaudio.Mixer('Master', 0)
+    mixer = alsaaudio.Mixer('Softmaster', 0)
 except alsaaudio.ALSAAudioError :
     sys.stderr.write("No such mixer\n")
     sys.exit(1)
@@ -38,13 +40,13 @@ def listen_message():
         message, address = sock.recvfrom(255)
         print 'received %s bytes from %s' % (len(message), address)
         print message
-        vol = m.getvolume()[0]
+        vol = mixer.getvolume()[0]
         if vol <= 0:
-            m.setvolume(99) # set volume up
+            mixer.setvolume(100) # set volume up
             lower_volume() # set volume down after 300 seconds (5 mins)
 
 @delay(300.0)
 def lower_volume():
-    m.setvolume(0)
+    mixer.setvolume(0)
     
 listen_message()
