@@ -214,12 +214,12 @@ execute_command "wget -O ~/get-pip.py https://bootstrap.pypa.io/get-pip.py" true
 execute_command "python ~/get-pip.py" true "Installing get-pip"
 execute_command "pip install RPi.GPIO" true "Installing RPi.GPIO"
 
-execute_command "cp bbfone-diffuser.sh /usr/local/bin/bbfone-diffuser.sh" true "Copying bbfone shell script to /usr/local/bin"
+execute_command "cp $SCRIPTPATH/bbfone-diffuser.sh /usr/local/bin/bbfone-diffuser.sh" true "Copying bbfone shell script to /usr/local/bin"
 execute_command "sed -i 's/BBFONE_PORT/$BBFONE_PORT/' /usr/local/bin/bbfone-diffuser.sh" true "Updating bbfone shell script : udp port"
 execute_command "sed -i 's/BBFONE_RECEIVER/$BBFONE_RECEIVER/' /usr/local/bin/bbfone-diffuser.sh" true "Updating bbfone shell script : receiver hostname or ip"
 execute_command "chmod +x /usr/local/bin/bbfone-diffuser.sh" true "Making bbfone shell script executable"
 
-execute_command "cp bbfone-diffuser.py /usr/local/bin/bbfone-diffuser.py" true "Copying bbfone python script to /usr/local/bin"
+execute_command "cp $SCRIPTPATH/bbfone-diffuser.py /usr/local/bin/bbfone-diffuser.py" true "Copying bbfone python script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-diffuser.py" true "Making bbfone python script executable"
 
 #*

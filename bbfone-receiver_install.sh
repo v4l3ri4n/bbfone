@@ -217,11 +217,11 @@ execute_command "apt-get install -y gstreamer-tools gstreamer0.10-plugins-base g
 
 execute_command "apt-get install -y python python-alsaaudio" true "Installing python"
 
-execute_command "cp bbfone-receiver.sh /usr/local/bin/bbfone-receiver.sh" true "Copying bbfone shell script to /usr/local/bin"
+execute_command "cp $SCRIPTPATH/bbfone-receiver.sh /usr/local/bin/bbfone-receiver.sh" true "Copying bbfone shell script to /usr/local/bin"
 execute_command "sed -i 's/BBFONE_PORT/$BBFONE_PORT/' /usr/local/bin/bbfone-receiver.sh" true "Updating bbfone shell script : udp port"
 execute_command "chmod +x /usr/local/bin/bbfone-receiver.sh" true "Making bbfone shell script executable"
 
-execute_command "cp bbfone-receiver.py /usr/local/bin/bbfone-receiver.py" true "Copying bbfone python script to /usr/local/bin"
+execute_command "cp $SCRIPTPATH/bbfone-receiver.py /usr/local/bin/bbfone-receiver.py" true "Copying bbfone python script to /usr/local/bin"
 execute_command "chmod +x /usr/local/bin/bbfone-receiver.py" true "Making bbfone python script executable"
 
 #*
