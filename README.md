@@ -1,6 +1,6 @@
 # bbfone
 
-Thierd version based on UDP streaming with gstreamer and Node.js
+Third version based on UDP streaming with gstreamer and Node.js
 
 Install on each pi:
 -------------------
