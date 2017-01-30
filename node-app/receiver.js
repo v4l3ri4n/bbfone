@@ -8,7 +8,7 @@ var os = require('os'),
     ip = require('ip');
 
 var tcpport = 3000,
-    tcphost = "localhost",
+    tcphost = "BBFONE_DIFFUSER",
     httpport = 80,
     httpapp = express(),
     httpserver = http.Server(httpapp),
@@ -28,7 +28,7 @@ socket.on("data", function (data) {
         // cancel any volume down pending request
         if (volumeDownTimeoutId!==undefined) {
             clearTimeout(volumeDownTimeoutId);
-        )
+        }
         // request volume up
         writeCommand("volume", 100);
         // request volume down i X minutes
@@ -68,6 +68,7 @@ function connect() {
         console.log("Client: Connected to server");
         serverConnected = true;
         // launch streaming playback
+        writeCommand("volume", 100);
         writeCommand("stream-play", 1);
     });
 }
@@ -109,7 +110,7 @@ httpapp.use(express.static(__dirname + '/public'))
                 ip: ip.address(),
                 streamingStatus: streamCheck ? "Playing!" : "Not playing!",
                 volumeStatus: fs.readFileSync("commands/volume"),
-                serverConnected: serverConnected ?  "Yes" : "No";
+                serverConnected: serverConnected ?  "Yes" : "No"
             });
         }
     );

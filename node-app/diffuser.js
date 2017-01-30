@@ -9,7 +9,7 @@ var os = require('os'),
     ip = require('ip');
 
 var tcpport = 3000,
-    tcphost = "localhost",
+    tcphost = "0.0.0.0", // accept connection from every host
     httpport = 80,
     httpapp = express(),
     httpserver = http.Server(httpapp),

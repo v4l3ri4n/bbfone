@@ -28,6 +28,7 @@ NODEAPP_ROOT="/var/www/bbfone"
 # Bbfone variables
 BBFONE_PORT=4000
 BBFONE_RECEIVER="daddy.local"
+BBFONE_DIFFUSER="baby.local"
 
 read -p 'Install diffuser or receiver d/r ? ' -n 1 INSTALL_TYPE
 
@@ -280,6 +281,7 @@ display_message "Allow incron for root"
 echo "root" > /etc/incron.allow
 check_returned_code $?
 
+execute_command "mkdir /var/www" true "Creating /var/www dir"
 execute_command "cp -R $SCRIPTPATH/node-app $NODEAPP_ROOT" true "Copying node app files"
 #execute_command "chown -Rf www-data:www-data $NODEAPP_ROOT" true "Changing owner of node app directory"
 execute_command "cd $NODEAPP_ROOT"
@@ -289,9 +291,11 @@ execute_command "cd $SCRIPTPATH"
 display_message "Creating incrontab for node app"
 echo "$NODEAPP_ROOT/commands/shutdown IN_CLOSE_WRITE /usr/local/bin/bbfone-shutdown.sh" > /etc/incron.d/bbfone
 echo "$NODEAPP_ROOT/commands/reboot IN_CLOSE_WRITE /usr/local/bin/bbfone-reboot.sh" >> /etc/incron.d/bbfone
+
 if [ $INSTALL_TYPE == "R" ] ; then
     echo "$NODEAPP_ROOT/commands/stream-play IN_CLOSE_WRITE /usr/local/bin/bbfone-stream-play.sh" >> /etc/incron.d/bbfone
     echo "$NODEAPP_ROOT/commands/volume IN_CLOSE_WRITE /usr/local/bin/bbfone-volume.sh" >> /etc/incron.d/bbfone
+    execute_command "sed -i 's/BBFONE_DIFFUSER/$BBFONE_DIFFUSER/' $NODEAPP_ROOT/receiver.js" true "Updating bbfone diffuser host"
 else
     echo "$NODEAPP_ROOT/commands/stream-emit IN_CLOSE_WRITE /usr/local/bin/bbfone-stream-emit.sh" >> /etc/incron.d/bbfone
 fi
@@ -322,9 +326,12 @@ cat > /usr/local/bin/bbfone-stream-play.sh << EOT
 #!/bin/bash
 
 PORT=$BBFONE_PORT
+VOLUME=$(cat $NODEAPP_ROOT/commands/volume)
 
 # on start, set volume to 0
-amixer sset Softmaster 0%
+if [ -n $VOLUME ]; then
+    amixer sset Softmaster \$VOLUME%
+fi
 
 killall -9 gst-launch
 nohup gst-launch -v udpsrc port=\$PORT ! audio/x-opus, multistream=false ! opusdec ! audioconvert ! autoaudiosink &
@@ -340,7 +347,7 @@ cat > /usr/local/bin/bbfone-volume.sh << EOT
 #!/bin/bash
 
 VOLUME=$(cat $NODEAPP_ROOT/commands/volume)
-amixer sset Softmaster "\$VOLUME%"
+amixer sset Softmaster \$VOLUME%
 EOT
 execute_command "chmod +x /usr/local/bin/bbfone-volume.sh" true "Making bbfone volume shell script executable"
 fi
