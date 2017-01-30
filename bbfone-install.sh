@@ -281,7 +281,9 @@ display_message "Allow incron for root"
 echo "root" > /etc/incron.allow
 check_returned_code $?
 
-execute_command "mkdir /var/www" true "Creating /var/www dir"
+NUMOFFIELDS=$(echo $NODEAPP_ROOT | grep -o / | wc -l)
+PATHTOCREATE=$(echo $NODEAPP_ROOT | cut -d / -f -$NUMOFFIELDS)
+execute_command "mkdir -p $PATHTOCREATE" true "Creating node app parent dir"
 execute_command "cp -R $SCRIPTPATH/node-app $NODEAPP_ROOT" true "Copying node app files"
 #execute_command "chown -Rf www-data:www-data $NODEAPP_ROOT" true "Changing owner of node app directory"
 execute_command "cd $NODEAPP_ROOT"
@@ -326,10 +328,10 @@ cat > /usr/local/bin/bbfone-stream-play.sh << EOT
 #!/bin/bash
 
 PORT=$BBFONE_PORT
-VOLUME=$(cat $NODEAPP_ROOT/commands/volume)
+VOLUME=\$(cat $NODEAPP_ROOT/commands/volume)
 
-# on start, set volume to 0
-if [ -n $VOLUME ]; then
+# on start, set volume
+if [ -n \$VOLUME ]; then
     amixer sset Softmaster \$VOLUME%
 fi
 
@@ -346,8 +348,11 @@ display_message "Creating script for volume"
 cat > /usr/local/bin/bbfone-volume.sh << EOT
 #!/bin/bash
 
-VOLUME=$(cat $NODEAPP_ROOT/commands/volume)
-amixer sset Softmaster \$VOLUME%
+VOLUME=\$(cat $NODEAPP_ROOT/commands/volume)
+
+if [ -n \$VOLUME ]; then
+    amixer sset Softmaster \$VOLUME%
+fi
 EOT
 execute_command "chmod +x /usr/local/bin/bbfone-volume.sh" true "Making bbfone volume shell script executable"
 fi
