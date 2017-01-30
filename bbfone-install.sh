@@ -190,8 +190,18 @@ execute_command "ifup $WAN_INTERFACE" true "Activating the WAN interface"
 #*--------------------------------------------------------------------------------------------
 
 execute_command "apt-get install -y build-essential" true "Installing build tools"
-execute_command "curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -" true "Prepare node.js install"
-execute_command "apt-get install -y nodejs" true "Installing node.js"
+
+# form pi 2
+if $(uname -m | grep -Eq ^armv6); then
+    execute_command "wget https://nodejs.org/dist/v6.9.4/node-v6.9.4-linux-armv6l.tar.xz -O ~/node.tar.xz" true "Downloading nodejs tarball"
+    execute_command "cd /usr/local" true "Changing working dir to /usr/local"
+    execute_command "tar --strip-components 1 -xvf ~/node.tar.xz" true "Decompressing nodejs tarball"
+    execute_command "cd $SCRIPTPATH" true "Changing working dir to install script dir"
+else
+    execute_command "curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -" true "Prepare node.js install"
+    execute_command "apt-get install -y nodejs" true "Installing node.js"
+fi
+
 execute_command "npm install pm2 -g" true "Installing PM2"
 
 execute_command "usermod -a -G gpio root" true "Adding root user to gpio group"
