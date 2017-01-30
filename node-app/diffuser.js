@@ -5,7 +5,8 @@ var os = require('os'),
     http = require('http'),
     fs = require('fs'),
     ps = require('ps-node'),
-    rpio = require('rpio'); // https://github.com/jperkin/node-rpio/
+    rpio = require('rpio'), // https://github.com/jperkin/node-rpio/
+    ip = require('ip');
 
 var tcpport = 3000,
     tcphost = "localhost",
@@ -67,10 +68,14 @@ rpio.open(gpiopin, rpio.INPUT);
 rpio.poll(
     gpiopin,
     function(pin) {
-        console.log("sound detected !");
-        socket.write('sound-detected');
-    },
-    rpio.POLL_LOW // Watch only low events
+        if (rpio.read(gpiopin)==rpio.LOW) {
+            console.log("sound detected !");
+            if (socket!=undefined) {
+                socket.write('sound-detected');
+            }
+        }
+    }
+    //rpio.POLL_LOW // Watch only low events
 );
 
 /**
@@ -82,30 +87,35 @@ httpapp.use(express.static(__dirname + '/public'))
 
 // show default page
 .get('/', function(req, res) {
-    var streamCheck = false;
     // check gst-launch
     ps.lookup(
-        { command: 'gst-launch' },
+        {
+            command: 'gst-launch.*',
+            psargs: '-e'
+        },
         function(err, resultList ) {
             if (err) {
                 throw new Error( err );
             }
      
+            var streamCheck = false;
+            
             resultList.forEach(function( process ){
                 if( process ){
                     streamCheck = true;
                     console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
                 }
             });
+            
+            // render template
+            res.render('home-diffuser.ejs', {
+                hostname: os.hostname(),
+                ip: ip.address(),
+                streamingStatus: streamCheck ? "Streaming!" : "Not streaming!",
+                clientConnected: clientConnected ? "Yes" : "No"
+            });
         }
     );
-    // render template
-    res.render('home-diffuser.ejs', {
-        hostname: os.hostname(),
-        ip: httpserver.address().address,
-        streamingStatus: streamCheck ? "Streaming!" : "Not streaming!",
-        clientConnected: clientConnected ? "Yes" : "No"
-    });
 })
 
 // reboot command

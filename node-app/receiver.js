@@ -4,7 +4,8 @@ var os = require('os'),
     express = require('express'),
     http = require('http'),
     fs = require('fs'),
-    ps = require('ps-node');
+    ps = require('ps-node'),
+    ip = require('ip');
 
 var tcpport = 3000,
     tcphost = "localhost",
@@ -82,14 +83,18 @@ httpapp.use(express.static(__dirname + '/public'))
 
 // show default page
 .get('/', function(req, res) {
-    var streamCheck = false;
     // check gst-launch
     ps.lookup(
-        { command: 'gst-launch' },
+        {
+            command: 'gst-launch.*',
+            psargs: '-e'
+        },
         function(err, resultList ) {
             if (err) {
                 throw new Error( err );
             }
+     
+            var streamCheck = false;
      
             resultList.forEach(function( process ){
                 if( process ){
@@ -97,16 +102,17 @@ httpapp.use(express.static(__dirname + '/public'))
                     console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
                 }
             });
+                    
+            // render template
+            res.render('home-receiver.ejs', {
+                hostname: os.hostname(),
+                ip: ip.address(),
+                streamingStatus: streamCheck ? "Playing!" : "Not playing!",
+                volumeStatus: fs.readFileSync("commands/volume"),
+                serverConnected: serverConnected ?  "Yes" : "No";
+            });
         }
     );
-    // render template
-    res.render('home-receiver.ejs', {
-        hostname: os.hostname(),
-        ip: httpserver.address().address,
-        streamingStatus: streamCheck ? "Playing!" : "Not playing!",
-        volumeStatus: fs.readFileSync("commands/volume"),
-        serverConnected: serverConnected ?  "Yes" : "No";
-    });
 })
 
 // reboot command

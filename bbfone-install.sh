@@ -32,12 +32,12 @@ BBFONE_RECEIVER="daddy.local"
 read -p 'Install diffuser or receiver d/r ? ' -n 1 INSTALL_TYPE
 
 if [ $INSTALL_TYPE == "r" ] || [ $INSTALL_TYPE == "R" ] ; then
-    INSTALL_TYPE = "R"
-    HOSTNAME = HOSTNAME_RECEIVER
+    INSTALL_TYPE="R"
+    HOSTNAME=$HOSTNAME_RECEIVER
     # Install PhatDAC
     INSTALL_PHATDAC=1
 else
-    HOSTNAME =  HOSTNAME_DIFFUSER
+    HOSTNAME=$HOSTNAME_DIFFUSER
     INSTALL_PHATDAC=0
 fi
 
@@ -191,9 +191,10 @@ execute_command "ifup $WAN_INTERFACE" true "Activating the WAN interface"
 
 execute_command "apt-get install -y build-essential" true "Installing build tools"
 execute_command "curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -" true "Prepare node.js install"
-execute_command "apt-get install -y nodejs npm" true "Installing node.js and npm"
+execute_command "apt-get install -y nodejs" true "Installing node.js"
+execute_command "npm install pm2 -g" true "Installing PM2"
 
-#execute_command "useradd -G gpio NODEUSER" true "Adding node user to gpio group"
+execute_command "usermod -a -G gpio root" true "Adding root user to gpio group"
 
 display_message "Configuring udev"
 cat >/etc/udev/rules.d/20-gpiomem.rules <<EOF
@@ -217,7 +218,8 @@ if [ $INSTALL_TYPE == "R" ] ; then
 display_message "Creating bbfone start script"
 cat > /usr/local/bin/bbfone-start.sh << EOT
 #!/bin/sh
-node $NODEAPP_ROOT/receiver.js
+cd $NODEAPP_ROOT
+pm2 start receiver.js
 EOT
     
     display_message "Adding sound control with softvol alsa plugin"
@@ -251,7 +253,8 @@ else
 display_message "Creating bbfone start script"
 cat > /usr/local/bin/bbfone-start.sh << EOT
 #!/bin/sh
-node $NODEAPP_ROOT/diffuser.js
+cd $NODEAPP_ROOT
+pm2 start diffuser.js
 EOT
 fi
 
@@ -313,6 +316,7 @@ PORT=$BBFONE_PORT
 # on start, set volume to 0
 amixer sset Softmaster 0%
 
+killall -9 gst-launch
 nohup gst-launch -v udpsrc port=\$PORT ! audio/x-opus, multistream=false ! opusdec ! audioconvert ! autoaudiosink &
 EOT
 execute_command "chmod +x /usr/local/bin/bbfone-stream-play.sh" true "Making bbfone stream-play shell script executable"
@@ -342,7 +346,8 @@ DEVICE="hw:1,0" # sound card
 PORT=$BBFONE_PORT
 RECEIVER="$BBFONE_RECEIVER"
 
-# launch record in background
+# launch gst-launch in background
+killall -9 gst-launch
 gst-launch -v gstrtpbin alsasrc device="\$DEVICE" ! opusenc audio=false ! udpsink port=\$PORT host="\$RECEIVER" &
 EOT
 execute_command "chmod +x /usr/local/bin/bbfone-stream-emit.sh" true "Making bbfone stream-emit shell script executable"
