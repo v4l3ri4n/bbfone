@@ -128,6 +128,12 @@ httpapp.use(express.static(__dirname + '/public'))
     res.send('ok');
 })
 
+// volume command
+.get('/volume/:vol', function(req, res) {
+    writeCommand("volume", req.params.vol);
+    res.send('ok');
+})
+
 // redirect to default page if resource not found
 .use(function(req, res, next){
     res.redirect('/');

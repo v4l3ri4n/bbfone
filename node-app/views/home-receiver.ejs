@@ -19,20 +19,20 @@
   <body>
 
     <div class="container-fluid">
+    
+        <div class="page-header">
+            <h1><%= hostname %></h1>
+        </div>
+
+        <div class="jumbotron">
+            <h4>IP : <%= ip %></h4>
+            <h4>Streaming status : <%= streamingStatus %></h4>
+            <h4>Volume status : <%= volumeStatus %></h4>
+            <h4>Connected to server : <%= serverConnected %></h4>
+        </div>
         
         <div class="row">
             <div class="col-xs-12">
-            
-                <div class="page-header">
-                    <h1><%= hostname %></h1>
-                </div>
-
-                <div class="jumbotron">
-                    <h4>IP : <%= ip %></h4>
-                    <h4>Streaming status : <%= streamingStatus %></h4>
-                    <h4>Volume status : <%= volumeStatus %></h4>
-                    <h4>Connected to server : <%= serverConnected %></h4>
-                </div>
 
                 <button type="button" class="btn btn-danger btn-lg btn-block" autocomplete="off" data-toggle="collapse" data-target="#shutdown-info" id="shutdown">
                      <i class="fa fa-stop-circle-o" aria-hidden="true"></i> Shutdown
@@ -53,6 +53,18 @@
                 </div>
         
             </div>
+            
+            <div class="col-xs-6">
+                <button type="button" class="btn btn-default btn-lg btn-block" autocomplete="off" id="volume-0">
+                    Volume 0
+                </button>
+            </div>
+            <div class="col-xs-6">
+                <button type="button" class="btn btn-default btn-lg btn-block" autocomplete="off" id="volume-100">
+                    Volume 100
+                </button>
+            </div>
+
         </div>
         
     </div>
@@ -72,6 +84,16 @@
         $('#reboot').on('click', function () {
             $.ajax({
                 url: "/reboot",
+            });
+        });
+        $('#volume-0').on('click', function() {
+            $.ajax({
+                url: "/volume/0",
+            });
+        });
+        $('#volume-100').on('click', function() {
+            $.ajax({
+                url: "/volume/100",
             });
         });
     });
