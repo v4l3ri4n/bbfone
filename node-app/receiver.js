@@ -81,36 +81,43 @@ connect();
  
 // public assets
 httpapp.use(express.static(__dirname + '/public'))
+httpapp.use('/node_modules', express.static(__dirname + '/node_modules'))
+httpapp.use('/fonts/md-icons', express.static(__dirname + '/node_modules/material-design-icons/iconfont'))
 
 // show default page
 .get('/', function(req, res) {
+    res.render('home.ejs');
+})
+
+// status command
+.get('/status', function(req, res) {
     // check gst-launch
     ps.lookup(
         {
             command: 'gst-launch.*',
             psargs: '-e'
         },
-        function(err, resultList ) {
+        function(err, resultList) {
             if (err) {
                 throw new Error( err );
             }
      
             var streamCheck = false;
      
-            resultList.forEach(function( process ){
-                if( process ){
+            resultList.forEach(function(process) {
+                if (process) {
                     streamCheck = true;
                     console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
                 }
             });
                     
             // render template
-            res.render('home-receiver.ejs', {
-                hostname: os.hostname(),
+            res.send({
                 ip: ip.address(),
-                streamingStatus: streamCheck ? "Playing!" : "Not playing!",
-                volumeStatus: fs.readFileSync("commands/volume"),
-                serverConnected: serverConnected ?  "Yes" : "No"
+                hostname: os.hostname(),
+                streaming: streamCheck,
+                connected: serverConnected,
+                volume: fs.readFileSync("commands/volume"),
             });
         }
     );

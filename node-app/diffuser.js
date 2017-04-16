@@ -84,35 +84,42 @@ rpio.poll(
  
 // public assets
 httpapp.use(express.static(__dirname + '/public'))
+httpapp.use('/node_modules', express.static(__dirname + '/node_modules'))
+httpapp.use('/fonts/md-icons', express.static(__dirname + '/node_modules/material-design-icons/iconfont'))
 
 // show default page
 .get('/', function(req, res) {
-    // check gst-launch
+    res.render('home.ejs');
+})
+
+// status command
+.get('/status', function(req, res) {
+    // check for gst-launch
     ps.lookup(
         {
             command: 'gst-launch.*',
             psargs: '-e'
         },
-        function(err, resultList ) {
+        function(err, resultList) {
             if (err) {
                 throw new Error( err );
             }
      
             var streamCheck = false;
             
-            resultList.forEach(function( process ){
-                if( process ){
+            resultList.forEach(function(process) {
+                if (process) {
                     streamCheck = true;
                     console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
                 }
             });
             
             // render template
-            res.render('home-diffuser.ejs', {
-                hostname: os.hostname(),
+            res.send({
                 ip: ip.address(),
-                streamingStatus: streamCheck ? "Streaming!" : "Not streaming!",
-                clientConnected: clientConnected ? "Yes" : "No"
+                hostname: os.hostname(),
+                streaming: streamCheck,
+                connected: clientConnected,
             });
         }
     );
