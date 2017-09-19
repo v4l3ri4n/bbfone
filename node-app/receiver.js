@@ -110,14 +110,14 @@ httpapp.use('/fonts/md-icons', express.static(__dirname + '/node_modules/materia
                     console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
                 }
             });
-                    
+
             // render template
             res.send({
                 ip: ip.address(),
                 hostname: os.hostname(),
                 streaming: streamCheck,
                 connected: serverConnected,
-                volume: fs.readFileSync("commands/volume"),
+                volume: String(fs.readFileSync("commands/volume")),
             });
         }
     );

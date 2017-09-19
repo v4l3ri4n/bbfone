@@ -2,6 +2,7 @@
 
 # Tested on Raspbian Jessie Lite 2016-11-25
 # Tested on Raspbian Jessie Lite 2017-01-11
+# Tested on Raspbian Jessie Lite 2017-07-05
 
 # ********************************************************************************************
 #
@@ -148,7 +149,8 @@ execute_command "systemctl restart keyboard-setup" true "Reload keyboard service
 
 # Install PhatDAC
 if [ $INSTALL_PHATDAC -eq 1 ]; then
-    execute_command "curl -sS get.pimoroni.com/phatdac | bash" true "Installing phatdac"
+    display_message "Installing phatdac"
+    curl -sS get.pimoroni.com/phatdac | bash
 fi
 
 #*

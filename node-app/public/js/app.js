@@ -37,7 +37,9 @@
 
         // update volume call to server
         $scope.$watch('volume', function(newValue, oldValue) {
-            $http.get('/volume/' + newValue);
+            if (newValue !== oldValue) {
+                $http.get('/volume/' + newValue);
+            }
         });
 
         function loadData() {
