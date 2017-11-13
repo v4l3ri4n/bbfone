@@ -151,6 +151,12 @@ execute_command "systemctl restart keyboard-setup" true "Reload keyboard service
 if [ $INSTALL_PHATDAC -eq 1 ]; then
     display_message "Installing phatdac"
     curl -sS get.pimoroni.com/phatdac | bash
+    
+    if [ $? -ne 0 ]; then
+        display_message ""
+        display_message "Phatdac not installed, you may need to run the phatdac installer manually"
+        display_message ""
+    fi
 fi
 
 #*
@@ -235,7 +241,8 @@ cd $NODEAPP_ROOT
 pm2 start receiver.js
 EOT
     
-    display_message "Adding sound control with softvol alsa plugin"
+display_message "Adding sound control with softvol alsa plugin"
+
 cat > /etc/asound.conf << EOT
 pcm.!default {
     type plug
@@ -252,9 +259,10 @@ pcm.softvol {
     control.card 0
 }
 EOT
-    check_returned_code $?
 
-    execute_command "speaker-test -Dsoftvol -c2 -twav -l2" true "Testing sound control to store it"
+check_returned_code $?
+
+execute_command "speaker-test -Dsoftvol -c2 -twav -l2" true "Testing sound control to store it"
 
     # TO REMOVE ASOUND CONF :
     #rm /var/lib/alsa/asound.state # remove the state file
@@ -334,11 +342,11 @@ VOLUME=\$(cat $NODEAPP_ROOT/commands/volume)
 
 # on start, set volume
 if [ -n \$VOLUME ]; then
-    amixer sset Softmaster \$VOLUME%
+    amixer sset Softmaster \$VOLUME\%
 fi
 
 killall -9 gst-launch
-nohup gst-launch -v udpsrc port=\$PORT ! audio/x-opus, multistream=false ! opusdec ! audioconvert ! autoaudiosink &
+nohup gst-launch -v udpsrc port=\$PORT ! audio/x-opus, multistream=false ! opusdec ! audioconvert ! rgvolume pre-amp=60 ! audioconvert ! autoaudiosink &
 EOT
 execute_command "chmod +x /usr/local/bin/bbfone-stream-play.sh" true "Making bbfone stream-play shell script executable"
 fi
@@ -353,7 +361,7 @@ cat > /usr/local/bin/bbfone-volume.sh << EOT
 VOLUME=\$(cat $NODEAPP_ROOT/commands/volume)
 
 if [ -n \$VOLUME ]; then
-    amixer sset Softmaster \$VOLUME%
+    amixer sset Softmaster \$VOLUME\%
 fi
 EOT
 execute_command "chmod +x /usr/local/bin/bbfone-volume.sh" true "Making bbfone volume shell script executable"

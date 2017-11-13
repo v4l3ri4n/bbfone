@@ -13,6 +13,7 @@
         .controller('StatusCtrl', ['$scope', '$http', '$interval', StatusCtrl]);
 
     function StatusCtrl($scope, $http, $interval) {
+        $scope.type = '';
         $scope.ip = '';
         $scope.hostname = '';
         $scope.connected = false;
@@ -34,13 +35,11 @@
         $scope.shutdown = function() {
             $http.get('/shutdown');
         }
-
+        
         // update volume call to server
-        $scope.$watch('volume', function(newValue, oldValue) {
-            if (newValue !== oldValue) {
-                $http.get('/volume/' + newValue);
-            }
-        });
+        $scope.updateVolume = function(value) {
+            $http.get('/volume/' + value);
+        }
 
         function loadData() {
             $http.get('/status')

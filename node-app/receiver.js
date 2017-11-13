@@ -113,11 +113,12 @@ httpapp.use('/fonts/md-icons', express.static(__dirname + '/node_modules/materia
 
             // render template
             res.send({
+                type: 'receiver',
                 ip: ip.address(),
                 hostname: os.hostname(),
                 streaming: streamCheck,
                 connected: serverConnected,
-                volume: String(fs.readFileSync("commands/volume")),
+                volume: Number(fs.readFileSync("commands/volume")),
             });
         }
     );

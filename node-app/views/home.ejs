@@ -27,11 +27,13 @@
                 </md-list-item>
                 <md-list-item>
                     <md-icon>cast_connected</md-icon>
-                    <p>{{ connected ? 'Connected' : 'Not connected' }}</p>
+                    <p ng-if="type == 'diffuser'">{{ connected ? 'Client connected' : 'Client not connected' }}</p>
+                    <p ng-if="type == 'receiver'">{{ connected ? 'Connected to server' : 'Not connected to server' }}</p>
                 </md-list-item>
                 <md-list-item>
                     <md-icon>play_arrow</md-icon>
-                    <p>{{ streaming ? 'Playing stream !' : 'Not playing stream' }}</p>
+                    <p ng-if="type == 'diffuser'">{{ streaming ? 'Broadcasting stream !' : 'Not broadcasting stream' }}</p>
+                    <p ng-if="type == 'receiver'">{{ streaming ? 'Playing stream !' : 'Not playing stream' }}</p>
                 </md-list-item>
             </md-list>
 
@@ -39,7 +41,8 @@
                 <md-subheader class="md-no-sticky">Volume</md-subheader>
 
                 <md-slider-container>
-                    <md-slider flex md-discrete ng-model="volume" step="1" min="1" max="100" aria-label="rating"></md-slider>
+                    <md-slider md-discrete ng-model="volume" ng-change="updateVolume(volume)" step="5" min="0" max="100" aria-label="volume">
+                    </md-slider>
                 </md-slider-container>
             </div>
 

@@ -116,6 +116,7 @@ httpapp.use('/fonts/md-icons', express.static(__dirname + '/node_modules/materia
             
             // render template
             res.send({
+                type: 'diffuser',
                 ip: ip.address(),
                 hostname: os.hostname(),
                 streaming: streamCheck,
